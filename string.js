@@ -14,8 +14,6 @@ function stringTimerNumber(string) {
     return stringObj
 }
 
-console.log(stringTimerNumber(Str))
-
 //字符串出现的不重复最长长度
 var lengthOfLongestSubstring = function (s) {
     let map = new Map();
@@ -56,3 +54,13 @@ var lengthOfLongestSubstring2 = function (s) {
     return res
 };
 
+//下划线转驼峰
+let _str = "get-element-by-id"
+function toUpStringHump() {
+    let upStr = _str.split('-').reduce((acc, cur, index, arr) => {
+        if (index > 0) {
+            return acc += cur[0].toUpperCase() + cur.substr(1)
+        }
+    })
+    return upStr
+}
