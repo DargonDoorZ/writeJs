@@ -50,9 +50,9 @@ function selectSort(arr) {
     }
     return arr;
 }
-console.log(quickSort(NumArr), bubbleSort(NumArr), selectSort(NumArr))
+// console.log(quickSort(NumArr), bubbleSort(NumArr), selectSort(NumArr))
 
-//斐波那契队列
+// 斐波那契队列
 function month(a) {
     if (a === 1 || a === 2) {
         return 1;
@@ -60,4 +60,27 @@ function month(a) {
         return month(a - 2) + month(a - 1);
     }
 }
-console.log(month(30));
+// console.log(month(30));
+
+
+// 数组扁平化
+let ARR = [1, [2, [4, 5], 3], 2]
+const fn = (arr) => {
+    arr.forEach((item, index) => {
+        if (Array.isArray(item)) {
+            arr.splice(index, 1, ...fn(item))
+        }
+    })
+    return arr
+}
+// console.log(fn(ARR))
+
+let obj = { a: 1, b: 2 }
+
+console.log(Object.values(obj))
+
+let newArr = []
+for (const key in obj) {
+    newArr.push(obj[key])
+}
+
