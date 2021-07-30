@@ -31,4 +31,15 @@ const fn4 = () => {
     })
 }
 
-console.log(fn1(), fn2(), fn3(), fn4())
+// console.log(fn1(), fn2(), fn3(), fn4())
+
+let level = Symbol('xixixi')
+
+const obj = {
+    name: 'ZZ',
+    level
+}
+console.log(obj)
+for (const pro in obj) {
+    console.log(pro)
+}
