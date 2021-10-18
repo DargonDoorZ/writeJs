@@ -1,66 +1,74 @@
-class Scheduler {
-    constructor(maxSize) {
-      this.maxSize = maxSize;
-      this.currentSize = 0;
-      this.queue = [];
+class Commitment {
+    static PENDING = '待定'; static FULFILLED = '成功'; static REJECTED = '拒绝';
+    constructor(func) {
+        this.status = Commitment.PENDING;
+        this.result = null
+        this.resolveCallBacks = []
+        this.rejectCallBacks = []
+        try {
+            func(this.resolve.bind(this), this.reject.bind(this))
+        } catch (error) {
+            this.reject(error)
+        }
     }
-    add(promiseCreator) {
-      if (this.currentSize === this.maxSize)
-        return new Promise((resolve, reject) => {
-          this.queue.push({ resolve, reject, promiseCreator });
-        });
-      else {
-        this.currentSize += 1;
-        return promiseCreator().then(
-          value => {
-            this.next();
-            return Promise.resolve(value);
-          },
-          error => {
-            this.next();
-            return Promise.reject(error);
-          }
-        );
-      }
+    resolve(result) {
+        setTimeout(() => {
+            if (this.status === Commitment.PENDING) {
+                this.status = Commitment.FULFILLED
+                this.result = result
+                this.resolveCallBacks.forEach(callback => {
+                    callback(result)
+                })
+            }
+        })
     }
-    next() {
-      this.currentSize -= 1;
-      if (this.queue.length === 0) return;
-      const { promiseCreator, reject, resolve } = this.queue.shift();
-      const wrapPromise = () => {
-        return promiseCreator().then(
-          value => resolve(value),
-          error => reject(error)
-        );
-      };
-      this.add(wrapPromise);
+    reject(result) {
+        setTimeout(() => {
+            if (this.status === Commitment.PENDING) {
+                this.status = Commitment.REJECTED
+                this.result = result
+                this.rejectCallBacks.forEach(callback => {
+                    callback(result)
+                })
+            }
+        })
     }
-  }
-  
-  const scheduler = new Scheduler(2);
-  const generateTask = function(msg, time) {
-    console.time(msg);
-    return () => new Promise(resolve => setTimeout(() => resolve(msg), time));
-  };
-  const task1 = scheduler.add(generateTask("Task 1", 1000));
-  task1.then(value => {
-    console.log(value);
-    console.timeEnd(value);
-  });
-  const task2 = scheduler.add(generateTask("Task 2", 2000));
-  task2.then(value => {
-    console.log(value);
-    console.timeEnd(value);
-  });
-  const task3 = scheduler.add(generateTask("Task 3", 500));
-  task3.then(value => {
-    console.log(value);
-    console.timeEnd(value);
-  });
-  const task4 = scheduler.add(generateTask("Task 4", 1200));
-  task4.then(value => {
-    console.log(value);
-    console.timeEnd(value);
-  });
-  
-  
+    then(onFULFILLED, onREJECTED) {
+        return new Commitment(() => {
+            onFULFILLED = typeof onFULFILLED === 'function' ? onFULFILLED : () => { }
+            onREJECTED = typeof onREJECTED === 'function' ? onREJECTED : () => { }
+            if (this.status === Commitment.PENDING) {
+                this.resolveCallBacks.push(onFULFILLED)
+                this.rejectCallBacks.push(onREJECTED)
+            }
+            if (this.status === Commitment.FULFILLED) {
+                setTimeout(() => {
+                    onFULFILLED(this.result)
+                })
+            }
+            if (this.status === Commitment.REJECTED) {
+                setTimeout(() => {
+                    onREJECTED(this.result)
+                })
+            }
+        })
+
+    }
+}
+
+
+console.log('第一步')
+let commitment = new Commitment((resolve, reject) => {
+    console.log('第二步')
+    setTimeout(() => {
+        resolve('这次一定')
+        reject('下次一定')
+        console.log('第四步')
+    })
+    // resolve('你还好吗？')
+})
+commitment.then(
+    result => { console.log(result) },
+    result => { console.log(result.AXCA) }
+)
+console.log('第三步')
