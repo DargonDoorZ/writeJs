@@ -34,7 +34,7 @@ class Commitment {
         })
     }
     then(onFULFILLED, onREJECTED) {
-        return new Commitment(() => {
+        return new Commitment((resolve,reject) => {
             onFULFILLED = typeof onFULFILLED === 'function' ? onFULFILLED : () => { }
             onREJECTED = typeof onREJECTED === 'function' ? onREJECTED : () => { }
             if (this.status === Commitment.PENDING) {
@@ -70,5 +70,7 @@ let commitment = new Commitment((resolve, reject) => {
 commitment.then(
     result => { console.log(result) },
     result => { console.log(result.AXCA) }
-)
+).then(()=>{
+    console.log(123)
+})
 console.log('第三步')
